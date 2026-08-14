@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>O'zbekiston Avtomobil Raqami Generatori</title>
+
+<!-- UI matni uchun (sarlavha, input) — bu tashqi shrift, plita raqamiga ta'sir qilmaydi -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+
+<style>
+  /*
+    ASL PLITA SHRIFTI (FE-Schrift) — endi tayyor holda ulangan.
+    fonts/PlateFont.woff va fonts/PlateFont.ttf fayllarini shu HTML
+    bilan BIRGA, xuddi shu papka tuzilishida (fonts/ ichida) joylashtiring.
+  */
+  @font-face {
+    font-family: 'PlateFont';
+    src: url('PlateFont.woff') format('woff'),
+         url('PlateFont.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  :root{
+    --bg: #0b0b0c;
+    --panel: #1a1a1c;
+    --border: #2c2c2f;
+    --text: #f2f2f2;
+    --muted: #9a9a9e;
+    --accent: #4f8ef7;
+    --plate-blue: #0033a0;
+    --plate-green: #00a651;
+  }
+
+  *{ box-sizing: border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Oswald', sans-serif;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 48px 20px;
+  }
+
+  h1{
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-align:center;
+    margin-bottom: 32px;
+  }
+
+  .controls{
+    display:flex;
+    gap:12px;
+    margin-bottom: 40px;
+    width:100%;
+    max-width: 480px;
+  }
+
+  select, input{
+    background: var(--panel);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-size: 1rem;
+    font-family: 'Oswald', sans-serif;
+    outline:none;
+  }
+
+  select{ width: 100px; flex-shrink:0; }
+  input{ flex:1; text-transform: uppercase; letter-spacing: 1px; }
+
+  select:focus, input:focus{ border-color: var(--accent); }
+
+  /* --- RAQAM PLASTINKASI --- */
+  .plate{
+    display:flex;
+    align-items:stretch;
+    background:#ffffff;
+    border: 3px solid #111;
+    border-radius: 10px;
+    overflow:hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    max-width: 100%;
+  }
+
+  .plate-region{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 10px 10px;
+    font-family: 'PlateFont', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.4rem, 6vw, 2.2rem);
+    color:#111;
+    border-right: 3px solid #111;
+    background:#fff;
+    flex-shrink: 0;
+  }
+
+  .plate-main{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    padding: 8px 14px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  .plate-number{
+    font-family: 'PlateFont', 'Arial Narrow', 'Helvetica Neue', sans-serif;
+    font-weight: 900;
+    font-size: clamp(1.3rem, 7vw, 2.6rem);
+    letter-spacing: 2px;
+    color:#111;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: clip;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .plate-flag{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:2px;
+    flex-shrink: 0;
+    width: 34px;
+  }
+
+  .flag-stripes{
+    width: 32px;
+    height: 20px;
+    border-radius: 2px;
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+    border: 1px solid #ddd;
+    flex-shrink: 0;
+  }
+
+  .flag-stripes div{ flex:1 1 0; min-height: 0; }
+  .stripe-blue{ background: var(--plate-blue); }
+  .stripe-white{ background:#fff; }
+  .stripe-green{ background: var(--plate-green); }
+
+  .flag-label{
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    color: var(--plate-blue);
+    letter-spacing: 1px;
+  }
+
+  @media (max-width: 380px){
+    .plate-flag{ width: 28px; }
+    .flag-stripes{ width: 26px; height: 16px; }
+    .flag-label{ font-size: 0.55rem; }
+  }
+</style>
+</head>
+<body>
+
+  <h1>O'zbekiston Avtomobil Raqami Generatori</h1>
+
+  <div class="controls">
+    <select id="region">
+      <option value="01">01</option>
+      <option value="10">10</option>
+      <option value="20">20</option>
+      <option value="25">25</option>
+      <option value="30">30</option>
+      <option value="40">40</option>
+      <option value="50">50</option>
+      <option value="60">60</option>
+      <option value="70">70</option>
+      <option value="75">75</option>
+      <option value="80">80</option>
+      <option value="85">85</option>
+      <option value="90" selected>90</option>
+      <option value="95">95</option>
+    </select>
+    <input id="plateText" type="text" maxlength="8" value="F 777 FF">
+  </div>
+
+  <div class="plate" id="plate">
+    <div class="plate-region" id="regionOut">90</div>
+    <div class="plate-main">
+      <div class="plate-number" id="numberOut">F 777 FF</div>
+      <div class="plate-flag">
+        <div class="flag-stripes">
+          <div class="stripe-blue"></div>
+          <div class="stripe-white"></div>
+          <div class="stripe-green"></div>
+        </div>
+        <div class="flag-label">UZ</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const regionSelect = document.getElementById('region');
+  const plateInput   = document.getElementById('plateText');
+  const regionOut    = document.getElementById('regionOut');
+  const numberOut    = document.getElementById('numberOut');
+
+  function update(){
+    regionOut.textContent = regionSelect.value;
+    numberOut.textContent = plateInput.value.toUpperCase();
+  }
+
+  regionSelect.addEventListener('change', update);
+  plateInput.addEventListener('input', update);
+
+  update();
+</script>
+
+</body>
+  </html>
