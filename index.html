@@ -5,8 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Uzbekistan License Plate Generator</title>
     <style>
-        /* DIN 1451 rasmiy avto-shriftiga eng yaqin shriftni ulash */
-        @import url('https://fonts.googleapis.com/css2?family=Pathway+Gothic+One&display=swap');
+        /* HAQIQIY DIN 1451 SHRIFTINI INTERNETDAN DIREKT ULASH */
+        @font-face {
+            font-family: 'DIN1451Real';
+            src: url('https://db.onlinewebfonts.com/t/0858177517601b31a26d7e0081d5f3df.woff2') format('woff2'),
+                 url('https://db.onlinewebfonts.com/t/0858177517601b31a26d7e0081d5f3df.woff') format('woff');
+            font-weight: bold;
+            font-style: normal;
+        }
 
         * {
             box-sizing: border-box;
@@ -50,45 +56,45 @@
 
         /* AVTORAQAM KONTURI */
         .plate {
-            width: 430px;
-            height: 92px;
+            width: 440px;
+            height: 95px;
             background-color: #ffffff;
-            border: 3px solid #000000;
+            border: 3.5px solid #000000;
             border-radius: 8px;
             display: flex;
             align-items: center;
             position: relative;
             box-shadow: 0 10px 25px rgba(0,0,0,0.8);
-            padding: 2px;
+            padding: 0;
+            overflow: hidden;
         }
 
-        /* VILOYAT KODI (DIN 1451 Shriftida) */
+        /* VILOYAT KODI (HAQIQIY DIN 1451 SHRIFTI) */
         .region {
-            width: 75px;
+            width: 80px;
             height: 100%;
-            border-right: 3px solid #000000;
+            border-right: 3.5px solid #000000;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Pathway Gothic One', 'Arial Narrow', sans-serif;
-            font-size: 64px;
+            font-family: 'DIN1451Real', 'Arial Narrow', sans-serif;
+            font-size: 68px;
             font-weight: bold;
             color: #000000;
-            letter-spacing: -1px;
             line-height: 1;
         }
 
-        /* RAQAM VA HARFLAR (DIN 1451 Shriftida) */
+        /* RAQAM VA HARFLAR (HAQIQIY DIN 1451 SHRIFTI) */
         .number {
             flex-grow: 1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'Pathway Gothic One', 'Arial Narrow', sans-serif;
-            font-size: 66px;
+            font-family: 'DIN1451Real', 'Arial Narrow', sans-serif;
+            font-size: 70px;
             font-weight: bold;
             color: #000000;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
             line-height: 1;
         }
@@ -104,9 +110,9 @@
             padding-right: 5px;
         }
         .flag {
-            width: 36px;
-            height: 18px;
-            border: 1px solid #aaa;
+            width: 38px;
+            height: 19px;
+            border: 1px solid #999;
             background: linear-gradient(
                 to bottom, 
                 #0099b5 0%, #0099b5 30%, 
@@ -130,12 +136,12 @@
                 height: 72px;
             }
             .region {
-                width: 58px;
-                font-size: 48px;
+                width: 60px;
+                font-size: 50px;
             }
             .number {
-                font-size: 50px;
-                letter-spacing: 1px;
+                font-size: 52px;
+                letter-spacing: 2px;
             }
             .flag {
                 width: 28px;
@@ -196,4 +202,5 @@
         });
     </script>
 </body>
-</html>
+    </html>
+    
