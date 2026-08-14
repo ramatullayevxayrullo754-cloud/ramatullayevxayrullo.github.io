@@ -5,14 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oʻzbekiston Avtomobil Raqami Generatori</title>
     <style>
-        /* HAQIQIY FE-SCHRIFT (O'ng tepasi kesilgan 0 shrifti) */
-        @font-face {
-            font-family: 'FESchrift';
-            src: url('https://cdn.jsdelivr.net/gh/glin/fe-schrift/FE-Schrift.woff2') format('woff2'),
-                 url('https://cdn.jsdelivr.net/gh/glin/fe-schrift/FE-Schrift.woff') format('woff');
-            font-weight: normal;
-            font-style: normal;
-        }
+        /* GOOGLE FONTS: FE-SCHRIFT / AVTO-RAQAMGA ENG YAQIN REAL SHRIFT */
+        @import url('https://fonts.googleapis.com/css2?family=Coda:wght@800&family=Orbitron:wght@900&display=swap');
 
         * {
             box-sizing: border-box;
@@ -53,11 +47,11 @@
 
         /* AVTORAQAM KONTURI */
         .plate {
-            width: 460px;
+            width: 450px;
             height: 96px;
             background-color: #ffffff;
             border: 3.5px solid #000000;
-            border-radius: 10px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             position: relative;
@@ -65,20 +59,20 @@
             overflow: hidden;
         }
 
-        /* VILOYAT KODI */
+        /* VILOYAT KODI (FE-Schrift shaklidagi "0" va "1") */
         .region {
-            width: 85px;
+            width: 82px;
             height: 100%;
             border-right: 3.5px solid #000000;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'FESchrift', sans-serif;
-            font-size: 68px;
+            font-family: 'Coda', 'Orbitron', sans-serif;
+            font-size: 66px;
+            font-weight: 800;
             color: #000000;
             line-height: 1;
-            letter-spacing: -1px;
-            padding-top: 4px;
+            letter-spacing: -3px;
         }
 
         /* ASOSIY RAQAM VA HARFLAR */
@@ -87,18 +81,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: 'FESchrift', sans-serif;
-            font-size: 68px;
+            font-family: 'Coda', 'Orbitron', sans-serif;
+            font-size: 64px;
+            font-weight: 800;
             color: #000000;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             text-transform: uppercase;
             line-height: 1;
-            padding-top: 4px;
         }
 
         /* BAYROQ VA UZ KODI */
         .flag-container {
-            width: 55px;
+            width: 52px;
             height: 100%;
             display: flex;
             flex-direction: column;
@@ -107,8 +101,8 @@
             padding-right: 6px;
         }
         .flag {
-            width: 40px;
-            height: 20px;
+            width: 38px;
+            height: 19px;
             border: 1px solid #999;
             background: linear-gradient(
                 to bottom, 
@@ -121,7 +115,7 @@
         }
         .uz-code {
             font-family: Arial, sans-serif;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #0088cc;
             margin-top: 3px;
@@ -133,12 +127,12 @@
                 height: 72px;
             }
             .region {
-                width: 63px;
-                font-size: 50px;
+                width: 62px;
+                font-size: 48px;
             }
             .number {
-                font-size: 50px;
-                letter-spacing: 1px;
+                font-size: 46px;
+                letter-spacing: 2px;
             }
             .flag {
                 width: 28px;
@@ -156,7 +150,7 @@
 
     <div class="controls">
         <select id="regionInput">
-            <option value="01">01</option>
+            <option value="01" selected>01</option>
             <option value="10">10</option>
             <option value="20">20</option>
             <option value="25">25</option>
@@ -169,14 +163,14 @@
             <option value="80">80</option>
             <option value="85">85</option>
             <option value="90">90</option>
-            <option value="95" selected>95</option>
+            <option value="95">95</option>
         </select>
-        <input type="text" id="numberInput" placeholder="R 010 RR" maxlength="9" value="R 010 RR">
+        <input type="text" id="numberInput" placeholder="F 777 FF" maxlength="9" value="F 777 FF">
     </div>
 
     <div class="plate">
-        <div class="region" id="regionDisplay">95</div>
-        <div class="number" id="numberDisplay">R 010 RR</div>
+        <div class="region" id="regionDisplay">01</div>
+        <div class="number" id="numberDisplay">F 777 FF</div>
         <div class="flag-container">
             <div class="flag"></div>
             <div class="uz-code">UZ</div>
@@ -198,5 +192,4 @@
         });
     </script>
 </body>
-                </html>
-                
+</html>
