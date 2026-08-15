@@ -1,229 +1,236 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>O'zbekiston Avtomobil Raqami Generatori</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oʻzbekiston Avtomobil Raqami Generatori</title>
+    <style>
+        /* REPO ILDIZIDAGI PlateFont SHIFTINI ULASH */
+        @font-face {
+            font-family: 'PlateFont';
+            src: url('./PlateFont.woff') format('woff'),
+                 url('./PlateFont.ttf') format('truetype');
+            font-weight: normal;
+            font-style: normal;
+            font-display: swap;
+        }
 
-<!-- UI matni uchun (sarlavha, input) — bu tashqi shrift, plita raqamiga ta'sir qilmaydi -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            background-color: #121212;
+            color: #ffffff;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 15px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            text-align: center;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            width: 100%;
+            max-width: 500px;
+        }
+        input, select {
+            padding: 10px 12px;
+            font-size: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            background-color: #1e1e1e;
+            color: #fff;
+            outline: none;
+            text-transform: uppercase;
+        }
+        select {
+            width: 85px;
+        }
+        input {
+            flex: 1;
+        }
 
-<style>
-  /*
-    ASL PLITA SHRIFTI (FE-Schrift) — endi tayyor holda ulangan.
-    fonts/PlateFont.woff va fonts/PlateFont.ttf fayllarini shu HTML
-    bilan BIRGA, xuddi shu papka tuzilishida (fonts/ ichida) joylashtiring.
-  */
-  @font-face {
-    font-family: 'PlateFont';
-    src: url('PlateFont.woff') format('woff'),
-         url('PlateFont.ttf') format('truetype');
-    font-weight: normal;
-    font-style: normal;
-    font-display: swap;
-  }
+        /* AVTORAQAM KONTURI (CPM PROPORTSIYASI) */
+        .plate {
+            width: 100%;
+            max-width: 520px;
+            height: 100px;
+            background-color: #ffffff;
+            border: 3.5px solid #000000;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            overflow: hidden;
+        }
 
-  :root{
-    --bg: #0b0b0c;
-    --panel: #1a1a1c;
-    --border: #2c2c2f;
-    --text: #f2f2f2;
-    --muted: #9a9a9e;
-    --accent: #4f8ef7;
-    --plate-blue: #0033a0;
-    --plate-green: #00a651;
-  }
+        /* VILOYAT KODI (O'YIN DAGI DEK KATTA VA BOLD) */
+        .region {
+            width: 90px;
+            height: 100%;
+            border-right: 3.5px solid #000000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PlateFont', sans-serif;
+            font-size: 52px;
+            color: #000000;
+            line-height: 1;
+            flex-shrink: 0;
+            padding-top: 12px; /* Tepadagi kesilishni tekislash */
+        }
 
-  *{ box-sizing: border-box; }
+        /* ASOSIY RAQAM BO'LIMI */
+        .number {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'PlateFont', sans-serif;
+            font-size: 52px;
+            color: #000000;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            line-height: 1;
+            white-space: nowrap;
+            padding-top: 12px; /* Tepadagi kesilishni tekislash */
+        }
 
-  body{
-    margin:0;
-    min-height:100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Oswald', sans-serif;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    padding: 48px 20px;
-  }
+        /* O'NG TOMON: BAYROQ, QR-KOD VA UZ YUZASI */
+        .flag-container {
+            width: 55px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 4px 2px;
+            flex-shrink: 0;
+        }
+        .flag {
+            width: 38px;
+            height: 19px;
+            border: 0.5px solid #888;
+            background: linear-gradient(
+                to bottom, 
+                #0099b5 0%, #0099b5 30%, 
+                #ce1126 30%, #ce1126 35%, 
+                #ffffff 35%, #ffffff 65%, 
+                #ce1126 65%, #ce1126 70%, 
+                #1eb53a 70%, #1eb53a 100%
+            );
+        }
+        /* REAL AVTORAQAMLARDAGI QR-KOD SIMITSIYASI */
+        .qr-code {
+            width: 16px;
+            height: 16px;
+            background-color: #000;
+            background-image: 
+                radial-gradient(#fff 20%, transparent 20%),
+                radial-gradient(#fff 20%, transparent 20%);
+            background-size: 6px 6px;
+            background-position: 0 0, 3px 3px;
+            opacity: 0.85;
+        }
+        .uz-code {
+            font-family: Arial, sans-serif;
+            font-size: 13px;
+            font-weight: 900;
+            color: #0088cc;
+            line-height: 1;
+        }
 
-  h1{
-    font-size: 1.5rem;
-    font-weight: 700;
-    text-align:center;
-    margin-bottom: 32px;
-  }
-
-  .controls{
-    display:flex;
-    gap:12px;
-    margin-bottom: 40px;
-    width:100%;
-    max-width: 480px;
-  }
-
-  select, input{
-    background: var(--panel);
-    border: 1px solid var(--border);
-    color: var(--text);
-    border-radius: 10px;
-    padding: 14px 16px;
-    font-size: 1rem;
-    font-family: 'Oswald', sans-serif;
-    outline:none;
-  }
-
-  select{ width: 100px; flex-shrink:0; }
-  input{ flex:1; text-transform: uppercase; letter-spacing: 1px; }
-
-  select:focus, input:focus{ border-color: var(--accent); }
-
-  /* --- RAQAM PLASTINKASI --- */
-  .plate{
-    display:flex;
-    align-items:stretch;
-    background:#ffffff;
-    border: 3px solid #111;
-    border-radius: 10px;
-    overflow:hidden;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-    max-width: 100%;
-  }
-
-  .plate-region{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding: 10px 10px;
-    font-family: 'PlateFont', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1.4rem, 6vw, 2.2rem);
-    color:#111;
-    border-right: 3px solid #111;
-    background:#fff;
-    flex-shrink: 0;
-  }
-
-  .plate-main{
-    display:flex;
-    align-items:center;
-    gap: 10px;
-    padding: 8px 14px;
-    min-width: 0;
-    flex: 1;
-  }
-
-  .plate-number{
-    font-family: 'PlateFont', 'Arial Narrow', 'Helvetica Neue', sans-serif;
-    font-weight: 900;
-    font-size: clamp(1.3rem, 7vw, 2.6rem);
-    letter-spacing: 2px;
-    color:#111;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: clip;
-    min-width: 0;
-    flex: 1 1 auto;
-  }
-
-  .plate-flag{
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    gap:2px;
-    flex-shrink: 0;
-    width: 34px;
-  }
-
-  .flag-stripes{
-    width: 32px;
-    height: 20px;
-    border-radius: 2px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-    border: 1px solid #ddd;
-    flex-shrink: 0;
-  }
-
-  .flag-stripes div{ flex:1 1 0; min-height: 0; }
-  .stripe-blue{ background: var(--plate-blue); }
-  .stripe-white{ background:#fff; }
-  .stripe-green{ background: var(--plate-green); }
-
-  .flag-label{
-    font-family: 'Oswald', sans-serif;
-    font-weight: 700;
-    font-size: 0.65rem;
-    color: var(--plate-blue);
-    letter-spacing: 1px;
-  }
-
-  @media (max-width: 380px){
-    .plate-flag{ width: 28px; }
-    .flag-stripes{ width: 26px; height: 16px; }
-    .flag-label{ font-size: 0.55rem; }
-  }
-</style>
+        /* TELEFON EKRANI UCHUN MOSLASHUV (RESPONSIVE) */
+        @media (max-width: 520px) {
+            .plate {
+                height: 80px;
+            }
+            .region {
+                width: 72px;
+                font-size: 42px;
+                padding-top: 9px;
+            }
+            .number {
+                font-size: 42px;
+                letter-spacing: 1px;
+                padding-top: 9px;
+            }
+            .flag-container {
+                width: 44px;
+            }
+            .flag {
+                width: 30px;
+                height: 15px;
+            }
+            .qr-code {
+                width: 13px;
+                height: 13px;
+            }
+            .uz-code {
+                font-size: 11px;
+            }
+        }
+    </style>
 </head>
 <body>
 
-  <h1>O'zbekiston Avtomobil Raqami Generatori</h1>
+    <h2>Oʻzbekiston Avtomobil Raqami Generatori</h2>
 
-  <div class="controls">
-    <select id="region">
-      <option value="01">01</option>
-      <option value="10">10</option>
-      <option value="20">20</option>
-      <option value="25">25</option>
-      <option value="30">30</option>
-      <option value="40">40</option>
-      <option value="50">50</option>
-      <option value="60">60</option>
-      <option value="70">70</option>
-      <option value="75">75</option>
-      <option value="80">80</option>
-      <option value="85">85</option>
-      <option value="90" selected>90</option>
-      <option value="95">95</option>
-    </select>
-    <input id="plateText" type="text" maxlength="8" value="F 777 FF">
-  </div>
-
-  <div class="plate" id="plate">
-    <div class="plate-region" id="regionOut">90</div>
-    <div class="plate-main">
-      <div class="plate-number" id="numberOut">F 777 FF</div>
-      <div class="plate-flag">
-        <div class="flag-stripes">
-          <div class="stripe-blue"></div>
-          <div class="stripe-white"></div>
-          <div class="stripe-green"></div>
-        </div>
-        <div class="flag-label">UZ</div>
-      </div>
+    <div class="controls">
+        <select id="regionInput">
+            <option value="01">01</option>
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="25">25</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="60">60</option>
+            <option value="70">70</option>
+            <option value="75">75</option>
+            <option value="80">80</option>
+            <option value="85">85</option>
+            <option value="90">90</option>
+            <option value="95" selected>95</option>
+        </select>
+        <input type="text" id="numberInput" placeholder="R 010 RR" maxlength="9" value="R 010 RR">
     </div>
-  </div>
 
-<script>
-  const regionSelect = document.getElementById('region');
-  const plateInput   = document.getElementById('plateText');
-  const regionOut    = document.getElementById('regionOut');
-  const numberOut    = document.getElementById('numberOut');
+    <div class="plate">
+        <div class="region" id="regionDisplay">95</div>
+        <div class="number" id="numberDisplay">R 010 RR</div>
+        <div class="flag-container">
+            <div class="flag"></div>
+            <div class="qr-code"></div>
+            <div class="uz-code">UZ</div>
+        </div>
+    </div>
 
-  function update(){
-    regionOut.textContent = regionSelect.value;
-    numberOut.textContent = plateInput.value.toUpperCase();
-  }
+    <script>
+        const regionInput = document.getElementById('regionInput');
+        const numberInput = document.getElementById('numberInput');
+        const regionDisplay = document.getElementById('regionDisplay');
+        const numberDisplay = document.getElementById('numberDisplay');
 
-  regionSelect.addEventListener('change', update);
-  plateInput.addEventListener('input', update);
+        function updatePlate() {
+            regionDisplay.textContent = regionInput.value;
+            numberDisplay.textContent = numberInput.value.toUpperCase() || '--- ---';
+        }
 
-  update();
-</script>
-
+        regionInput.addEventListener('change', updatePlate);
+        numberInput.addEventListener('input', updatePlate);
+    </script>
 </body>
-  </html>
+</html>
