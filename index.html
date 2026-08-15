@@ -251,7 +251,7 @@
         </div>
         <div class="info-item">
             <span class="info-label">Bozor / Auksion narxi:</span>
-            <span id="priceDisplay" class="info-value">18 500 000 soʻm (~$1,450)</span>
+            <span id="priceDisplay" class="info-value">12 400 000 soʻm (~$970)</span>
         </div>
     </div>
 
@@ -263,7 +263,6 @@
         const statusDisplay = document.getElementById('statusDisplay');
         const priceDisplay = document.getElementById('priceDisplay');
 
-        // Satr uchun barqaror Hash hisoblash
         function getStringHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -273,37 +272,32 @@
             return Math.abs(hash);
         }
 
-        // Raqam kombinatsiyasiga qarab narx va holat aniqlash
         function calculatePlateInfo(region, rawNumber) {
             const cleanNum = rawNumber.replace(/\s+/g, '').toUpperCase();
             const fullPlate = region + cleanNum;
             const hash = getStringHash(fullPlate);
 
-            // Egasi bor/yo'qligini aniqlash
             const isTaken = hash % 3 !== 0;
 
-            // Raqam va harflarni ajratib olish
             const digitsMatch = cleanNum.match(/\d+/);
             const digits = digitsMatch ? digitsMatch[0] : '';
             const letters = cleanNum.replace(/[^A-Z]/g, '');
 
-            let priceSom = 1350000; // Oddiy poshlina narxi (~3.5 BHM)
+            let priceSom = 1350000; // Boshlang'ich poshlina narxi (~1.35 mln)
 
             if (digits) {
                 const isTripleDigits = /^(\d)\1\1$/.test(digits); // 777, 111
-                const isRoundDigits = /^(00[1-9]|0[1-9]0|[1-9]00|707|070)$/.test(digits); // 001, 010, 100, 707
+                const isRoundDigits = /^(00[1-9]|0[1-9]0|[1-9]00|707|070)$/.test(digits); // 001, 010, 100
                 const isTripleLetters = letters.length === 3 && letters[0] === letters[1] && letters[1] === letters[2]; // AAA, RRR
 
                 if (isTripleDigits && isTripleLetters) {
-                    priceSom = 120000000 + (hash % 50000000); // Super VIP (120-170 mln)
-                } else if (isTripleDigits) {
-                    priceSom = 45000000 + (hash % 25000000); // 45-70 mln
-                } else if (isRoundDigits && isTripleLetters) {
-                    priceSom = 25000000 + (hash % 15000000); // 25-40 mln
-                } else if (isRoundDigits || isTripleLetters) {
-                    priceSom = 12000000 + (hash % 8000000);  // 12-20 mln
+                    priceSom = 15000000 + (hash % 5000000); // Super VIP: 15 - 20 mln so'm max
+                } else if (isTripleDigits || isTripleLetters) {
+                    priceSom = 10000000 + (hash % 5000000); // 10 - 15 mln so'm
+                } else if (isRoundDigits) {
+                    priceSom = 5000000 + (hash % 4000000);   // 5 - 9 mln so'm
                 } else if (digits.length === 3) {
-                    priceSom = 3500000 + (hash % 3000000);   // 3.5-6.5 mln
+                    priceSom = 2500000 + (hash % 2000000);   // 2.5 - 4.5 mln so'm
                 }
             }
 
@@ -345,7 +339,6 @@
         regionInput.addEventListener('change', updatePlate);
         numberInput.addEventListener('input', updatePlate);
 
-        // Boshlang'ich yuklanish
         updatePlate();
     </script>
 </body>
