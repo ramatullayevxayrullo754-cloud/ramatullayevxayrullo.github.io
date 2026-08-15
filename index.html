@@ -39,9 +39,9 @@
         .controls {
             display: flex;
             gap: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             width: 100%;
-            max-width: 500px;
+            max-width: 520px;
         }
         input, select {
             padding: 10px 12px;
@@ -60,7 +60,7 @@
             flex: 1;
         }
 
-        /* AVTORAQAM KONTURI (CPM PROPORTSIYASI) */
+        /* AVTORAQAM KONTURI */
         .plate {
             width: 100%;
             max-width: 520px;
@@ -75,7 +75,6 @@
             overflow: hidden;
         }
 
-        /* VILOYAT KODI (O'YIN DAGI DEK KATTA VA BOLD) */
         .region {
             width: 90px;
             height: 100%;
@@ -88,10 +87,9 @@
             color: #000000;
             line-height: 1;
             flex-shrink: 0;
-            padding-top: 12px; /* Tepadagi kesilishni tekislash */
+            padding-top: 12px;
         }
 
-        /* ASOSIY RAQAM BO'LIMI */
         .number {
             flex: 1;
             height: 100%;
@@ -105,10 +103,9 @@
             text-transform: uppercase;
             line-height: 1;
             white-space: nowrap;
-            padding-top: 12px; /* Tepadagi kesilishni tekislash */
+            padding-top: 12px;
         }
 
-        /* O'NG TOMON: BAYROQ, QR-KOD VA UZ YUZASI */
         .flag-container {
             width: 55px;
             height: 100%;
@@ -132,7 +129,6 @@
                 #1eb53a 70%, #1eb53a 100%
             );
         }
-        /* REAL AVTORAQAMLARDAGI QR-KOD SIMITSIYASI */
         .qr-code {
             width: 16px;
             height: 16px;
@@ -152,35 +148,64 @@
             line-height: 1;
         }
 
-        /* TELEFON EKRANI UCHUN MOSLASHUV (RESPONSIVE) */
+        /* MA'LUMOT VA NARX PANELI */
+        .info-box {
+            width: 100%;
+            max-width: 520px;
+            margin-top: 20px;
+            background-color: #1e1e1e;
+            border: 1px solid #333;
+            border-radius: 10px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 8px;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .info-label {
+            color: #aaa;
+        }
+        .info-value {
+            font-weight: 600;
+        }
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .status-taken {
+            background-color: rgba(255, 77, 77, 0.15);
+            color: #ff4d4d;
+            border: 1px solid #ff4d4d;
+        }
+        .status-free {
+            background-color: rgba(46, 204, 113, 0.15);
+            color: #2ecc71;
+            border: 1px solid #2ecc71;
+        }
+
         @media (max-width: 520px) {
-            .plate {
-                height: 80px;
-            }
-            .region {
-                width: 72px;
-                font-size: 42px;
-                padding-top: 9px;
-            }
-            .number {
-                font-size: 42px;
-                letter-spacing: 1px;
-                padding-top: 9px;
-            }
-            .flag-container {
-                width: 44px;
-            }
-            .flag {
-                width: 30px;
-                height: 15px;
-            }
-            .qr-code {
-                width: 13px;
-                height: 13px;
-            }
-            .uz-code {
-                font-size: 11px;
-            }
+            .plate { height: 80px; }
+            .region { width: 72px; font-size: 42px; padding-top: 9px; }
+            .number { font-size: 42px; letter-spacing: 1px; padding-top: 9px; }
+            .flag-container { width: 44px; }
+            .flag { width: 30px; height: 15px; }
+            .qr-code { width: 13px; height: 13px; }
+            .uz-code { font-size: 11px; }
+            .info-box { padding: 12px; }
+            .info-item { font-size: 14px; }
         }
     </style>
 </head>
@@ -218,19 +243,110 @@
         </div>
     </div>
 
+    <!-- MA'LUMOT VA NARX BLOKI -->
+    <div class="info-box">
+        <div class="info-item">
+            <span class="info-label">Raqam holati:</span>
+            <span id="statusDisplay" class="status-badge status-taken">🔴 Band (Egasi bor)</span>
+        </div>
+        <div class="info-item">
+            <span class="info-label">Bozor / Auksion narxi:</span>
+            <span id="priceDisplay" class="info-value">18 500 000 soʻm (~$1,450)</span>
+        </div>
+    </div>
+
     <script>
         const regionInput = document.getElementById('regionInput');
         const numberInput = document.getElementById('numberInput');
         const regionDisplay = document.getElementById('regionDisplay');
         const numberDisplay = document.getElementById('numberDisplay');
+        const statusDisplay = document.getElementById('statusDisplay');
+        const priceDisplay = document.getElementById('priceDisplay');
+
+        // Satr uchun barqaror Hash hisoblash
+        function getStringHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = (hash << 5) - hash + str.charCodeAt(i);
+                hash |= 0;
+            }
+            return Math.abs(hash);
+        }
+
+        // Raqam kombinatsiyasiga qarab narx va holat aniqlash
+        function calculatePlateInfo(region, rawNumber) {
+            const cleanNum = rawNumber.replace(/\s+/g, '').toUpperCase();
+            const fullPlate = region + cleanNum;
+            const hash = getStringHash(fullPlate);
+
+            // Egasi bor/yo'qligini aniqlash
+            const isTaken = hash % 3 !== 0;
+
+            // Raqam va harflarni ajratib olish
+            const digitsMatch = cleanNum.match(/\d+/);
+            const digits = digitsMatch ? digitsMatch[0] : '';
+            const letters = cleanNum.replace(/[^A-Z]/g, '');
+
+            let priceSom = 1350000; // Oddiy poshlina narxi (~3.5 BHM)
+
+            if (digits) {
+                const isTripleDigits = /^(\d)\1\1$/.test(digits); // 777, 111
+                const isRoundDigits = /^(00[1-9]|0[1-9]0|[1-9]00|707|070)$/.test(digits); // 001, 010, 100, 707
+                const isTripleLetters = letters.length === 3 && letters[0] === letters[1] && letters[1] === letters[2]; // AAA, RRR
+
+                if (isTripleDigits && isTripleLetters) {
+                    priceSom = 120000000 + (hash % 50000000); // Super VIP (120-170 mln)
+                } else if (isTripleDigits) {
+                    priceSom = 45000000 + (hash % 25000000); // 45-70 mln
+                } else if (isRoundDigits && isTripleLetters) {
+                    priceSom = 25000000 + (hash % 15000000); // 25-40 mln
+                } else if (isRoundDigits || isTripleLetters) {
+                    priceSom = 12000000 + (hash % 8000000);  // 12-20 mln
+                } else if (digits.length === 3) {
+                    priceSom = 3500000 + (hash % 3000000);   // 3.5-6.5 mln
+                }
+            }
+
+            const priceUSD = Math.round(priceSom / 12800);
+            const formattedSom = priceSom.toLocaleString('uz-UZ') + " soʻm";
+
+            return {
+                isTaken: isTaken,
+                priceStr: `${formattedSom} (~$${priceUSD.toLocaleString()})`
+            };
+        }
 
         function updatePlate() {
-            regionDisplay.textContent = regionInput.value;
-            numberDisplay.textContent = numberInput.value.toUpperCase() || '--- ---';
+            const reg = regionInput.value;
+            const numVal = numberInput.value.toUpperCase() || '--- ---';
+
+            regionDisplay.textContent = reg;
+            numberDisplay.textContent = numVal;
+
+            if (numberInput.value.trim().length > 0) {
+                const info = calculatePlateInfo(reg, numberInput.value);
+
+                if (info.isTaken) {
+                    statusDisplay.textContent = "🔴 Band (Egasi bor)";
+                    statusDisplay.className = "status-badge status-taken";
+                } else {
+                    statusDisplay.textContent = "🟢 Band emas (Auksionda)";
+                    statusDisplay.className = "status-badge status-free";
+                }
+
+                priceDisplay.textContent = info.priceStr;
+            } else {
+                statusDisplay.textContent = "Kiritilmagan";
+                statusDisplay.className = "status-badge";
+                priceDisplay.textContent = "0 soʻm";
+            }
         }
 
         regionInput.addEventListener('change', updatePlate);
         numberInput.addEventListener('input', updatePlate);
+
+        // Boshlang'ich yuklanish
+        updatePlate();
     </script>
 </body>
 </html>
