@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Oʻzbekiston Avtomobil Raqami Generatori</title>
     <style>
-        /* REPO ILDIZIDAGI PlateFont SHIFTINI ULASH */
         @font-face {
             font-family: 'PlateFont';
             src: url('./PlateFont.woff') format('woff'),
@@ -230,12 +229,13 @@
             <option value="90">90</option>
             <option value="95" selected>95</option>
         </select>
-        <input type="text" id="numberInput" placeholder="R 010 RR" maxlength="9" value="R 010 RR">
+        <!-- MAXLENGTH 6 QILIB BELGILANDI -->
+        <input type="text" id="numberInput" placeholder="DILIME" maxlength="6" value="DILIME">
     </div>
 
     <div class="plate">
         <div class="region" id="regionDisplay">95</div>
-        <div class="number" id="numberDisplay">R 010 RR</div>
+        <div class="number" id="numberDisplay">DILIME</div>
         <div class="flag-container">
             <div class="flag"></div>
             <div class="qr-code"></div>
@@ -250,8 +250,8 @@
             <span id="statusDisplay" class="status-badge status-taken">🔴 Band (Egasi bor)</span>
         </div>
         <div class="info-item">
-            <span class="info-label">Bozor / Auksion narxi:</span>
-            <span id="priceDisplay" class="info-value">12 400 000 soʻm (~$970)</span>
+            <span class="info-label">Bozor qiymati:</span>
+            <span id="priceDisplay" class="info-value">20 000 000 soʻm</span>
         </div>
     </div>
 
@@ -273,32 +273,23 @@
         }
 
         function calculatePlateInfo(region, rawNumber) {
-            const cleanNum = rawNumber.replace(/\s+/g, '').toUpperCase();
+            // 6 tadan ortiq kiritishning oldini olish
+            const cleanNum = rawNumber.toUpperCase().substring(0, 6);
             const fullPlate = region + cleanNum;
             const hash = getStringHash(fullPlate);
 
             const isTaken = hash % 3 !== 0;
 
-            const digitsMatch = cleanNum.match(/\d+/);
-            const digits = digitsMatch ? digitsMatch[0] : '';
-            const letters = cleanNum.replace(/[^A-Z]/g, '');
+            // Minimal narx 20 mln so'm qilib belgilandi
+            let priceSom = 20000000; 
 
-            let priceSom = 1350000; // Boshlang'ich poshlina narxi (~1.35 mln)
-
-            if (digits) {
-                const isTripleDigits = /^(\d)\1\1$/.test(digits); // 777, 111
-                const isRoundDigits = /^(00[1-9]|0[1-9]0|[1-9]00|707|070)$/.test(digits); // 001, 010, 100
-                const isTripleLetters = letters.length === 3 && letters[0] === letters[1] && letters[1] === letters[2]; // AAA, RRR
-
-                if (isTripleDigits && isTripleLetters) {
-                    priceSom = 15000000 + (hash % 5000000); // Super VIP: 15 - 20 mln so'm max
-                } else if (isTripleDigits || isTripleLetters) {
-                    priceSom = 10000000 + (hash % 5000000); // 10 - 15 mln so'm
-                } else if (isRoundDigits) {
-                    priceSom = 5000000 + (hash % 4000000);   // 5 - 9 mln so'm
-                } else if (digits.length === 3) {
-                    priceSom = 2500000 + (hash % 2000000);   // 2.5 - 4.5 mln so'm
-                }
+            // Agar maxsus so'z (masalan DILIME) yoki harflar ko'p bo'lsa narx oshadi
+            if (cleanNum === "DILIME") {
+                priceSom = 120000000;
+            } else if (cleanNum.length >= 4) {
+                priceSom = 20000000 + (hash % 40000000); // 20 mln dan 60 mln gacha
+            } else {
+                priceSom = 20000000 + (hash % 10000000); // 20 mln dan 30 mln gacha
             }
 
             const priceUSD = Math.round(priceSom / 12800);
@@ -311,20 +302,25 @@
         }
 
         function updatePlate() {
+            // Input qiymatini doim 6 taga cheklash
+            if (numberInput.value.length > 6) {
+                numberInput.value = numberInput.value.substring(0, 6);
+            }
+
             const reg = regionInput.value;
-            const numVal = numberInput.value.toUpperCase() || '--- ---';
+            const numVal = numberInput.value.toUpperCase() || '---';
 
             regionDisplay.textContent = reg;
             numberDisplay.textContent = numVal;
 
-            if (numberInput.value.trim().length > 0) {
-                const info = calculatePlateInfo(reg, numberInput.value);
+            if (numVal.length > 0) {
+                const info = calculatePlateInfo(reg, numVal);
 
                 if (info.isTaken) {
                     statusDisplay.textContent = "🔴 Band (Egasi bor)";
                     statusDisplay.className = "status-badge status-taken";
                 } else {
-                    statusDisplay.textContent = "🟢 Band emas (Auksionda)";
+                    statusDisplay.textContent = "🟢 Band emas";
                     statusDisplay.className = "status-badge status-free";
                 }
 
